@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authContext } from '../../context/Auth/Auth';
 import { Helmet } from 'react-helmet';
 import toast from 'react-hot-toast';
@@ -10,7 +10,6 @@ import toast from 'react-hot-toast';
 export default function Register() {
   const [err, setErr] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { setUserToken } = useContext(authContext);
 
   const buttonProps = {
     type: 'submit',
@@ -23,20 +22,21 @@ export default function Register() {
   function handleRegister(data) {
     setIsLoading(true);
     axios
-      .post('https://ecommerce.routemisr.com/api/v1/auth/signup', data)
+      .post(`${import.meta.env.VITE_BACKEND_HOST}/auth/register/`, data)
       .then((res) => {
         setErr(null);
-        toast.success('Account created successfully');
-        setUserToken(data.data.token);
-        localStorage.setItem('authToken', data.data.token);
+        toast.success('Account created successfully Please Verify Phone number');
         setIsLoading(false);
         if (res.data.message === 'success') {
-          navigate('/login');
+          navigate('/verify');
         }
       })
       .catch((err) => {
-        toast.error('Please try again');
+        toast.error(err.response.data.message);
         setIsLoading(false);
+        if(err.response.data.message==='Please verify your phone number'){
+          navigate('/verify')
+        }
         setErr(err.response.data.message);
       });
   }
@@ -46,39 +46,23 @@ export default function Register() {
       .required('Name is required')
       .min(3, 'Name must be at least 3 characters'),
 
-    email: Yup.string()
-      .required('Email is required')
-      .email('Email is not valid'),
+    phone: Yup.string().required('phone number is requried').matches(/^\d{10}$/, 'Must be 10 digits'),
 
     password: Yup.string()
       .min(8, 'Password must be at least 8 characters long')
-      .matches(/[A-Za-z]/, 'Password must contain at least one letter')
-      .matches(/\d/, 'Password must contain at least one number')
-      .matches(
-        /[!@#$%^&*(),.?":{}|<>+\-_]/,
-        'Password must contain at least one special character'
-      )
       .required('Password is required'),
 
     rePassword: Yup.string()
       .required('Confirm password is required')
       .oneOf([Yup.ref('password')], 'Passwords do not match'),
 
-    phone: Yup.string()
-      .required('Phone number is required')
-      .matches(
-        /^01[0-2|5]{1}[0-9]{8}$/,
-        'Phone number is not valid (123-456-7890)'
-      ),
   });
 
   const formik = useFormik({
     initialValues: {
       name: '',
-      email: '',
-      password: '',
-      rePassword: '',
       phone: '',
+      password: '',
     },
     onSubmit: handleRegister,
     validationSchema: validate,
@@ -125,24 +109,24 @@ export default function Register() {
           </div>
           <div className="relative z-0 w-full mb-5 group">
             <input
-              type="email"
-              name="email"
-              id="email"
+              type="text"
+              name="phone"
+              id="phone"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.email}
+              value={formik.values.phone}
               className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-green-500 focus:outline-none focus:ring-0 focus:border-green-600 peer"
               placeholder=" "
             />
             <label
-              htmlFor="email"
+              htmlFor="phone"
               className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-green-600 peer-focus:dark:text-green-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
             >
-              Email address
+              Phone number
             </label>
-            {formik.errors.email && formik.touched.email && (
+            {formik.errors.phone && formik.touched.phone && (
               <span className="text-red-600 font-light text-sm">
-                {formik.errors.email}
+                {formik.errors.phone}
               </span>
             )}
           </div>
@@ -192,29 +176,10 @@ export default function Register() {
               </span>
             )}
           </div>
-          <div className="relative z-0 w-full mb-5 group">
-            <input
-              type="tel"
-              name="phone"
-              id="phone"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.phone}
-              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-green-500 focus:outline-none focus:ring-0 focus:border-green-600 peer"
-              placeholder=" "
-            />
-            <label
-              htmlFor="phone"
-              className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-green-600 peer-focus:dark:text-green-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-            >
-              Phone number (123-456-7890)
-            </label>
-            {formik.errors.phone && formik.touched.phone && (
-              <span className="text-red-600 font-light text-sm">
-                {formik.errors.phone}
-              </span>
-            )}
-          </div>
+          
+          <Link to="/verify" className="text-green-800 text-sm underline block my-3">
+            Verify phone number?
+          </Link>
           {isLoading ? (
             <button {...buttonProps} disabled>
               <i className="fa-solid fa-spinner animate-spin"></i>

@@ -19,11 +19,11 @@ import ResetPassword from './pages/ResetPassword/ResetPassword';
 import VerifyCode from './pages/VerifyCode/VerifyCode';
 import Checkout from './pages/Checkout/Checkout';
 import Wishlist from './pages/Wishlist/Wishlist';
-import Brands from './pages/Brands/Brands';
-import Categories from './pages/Categories/Categories';
 import ProductsContextProvider from './context/Products/Products';
 import Search from './pages/Search/Search';
 import RedirectIfAuthenticated from './components/RedirectIfAuthenticated/RedirectIfAuthenticated';
+import Verification from './pages/Register/Verification';
+import Orders from './pages/Checkout/Orders';
 
 function App() {
   const queryClient = new QueryClient();
@@ -59,7 +59,11 @@ function App() {
         },
         {
           path: 'forgotPassword',
-          element: <ForgotPassword />,
+          element: (
+            <RedirectIfAuthenticated>
+              <ForgotPassword />
+            </RedirectIfAuthenticated>
+          ),
         },
         { path: 'forgotPassword/verifyCode', element: <VerifyCode /> },
         {
@@ -98,27 +102,29 @@ function App() {
             </ProtectedRoute>
           ),
         },
-        {
-          path: 'brands',
-          element: (
-            <ProtectedRoute>
-              <Brands />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: 'categories',
-          element: (
-            <ProtectedRoute>
-              <Categories />
-            </ProtectedRoute>
-          ),
-        },
+        
         {
           path: 'search',
           element: (
             <ProtectedRoute>
               <Search />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'verify',
+          element: (
+            <RedirectIfAuthenticated>
+              <Verification />
+            </RedirectIfAuthenticated>
+          ),
+          
+        },
+        {
+          path: 'orders/',
+          element: (
+            <ProtectedRoute>
+              <Orders />
             </ProtectedRoute>
           ),
         },

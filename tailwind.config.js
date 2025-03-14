@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+
+import tempp from 'flowbite/plugin'
 export default {
   darkMode: 'selector',
   content: ['./src/**/*.{html,js,jsx}', './index.html'],
@@ -15,5 +17,5 @@ export default {
       },
     },
   },
-  plugins: [require('flowbite/plugin')],
+  plugins: [tempp],
 };

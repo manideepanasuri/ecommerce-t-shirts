@@ -8,6 +8,7 @@ export default function Cart() {
     useContext(cartContext);
 
   const [data, setData] = useState(null);
+  const [totalCartPrice,setTotalCartPrice]=useState(0);
 
   const handleDeleteProduct = async (id) => {
     await deleteProduct(id);
@@ -21,7 +22,8 @@ export default function Cart() {
 
   async function main() {
     const data = await getProducts();
-    setData(data);
+    setTotalCartPrice(data.total_cart_price);
+    setData(data.cart_items);
   }
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function Cart() {
           </thead>
           <tbody>
             {data ? (
-              data.products.length === 0 ? (
+              data.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
@@ -64,15 +66,15 @@ export default function Cart() {
                   </td>
                 </tr>
               ) : (
-                data.products.map((product) => (
+                data.map((product) => (
                   <tr
-                    key={product._id}
+                    key={product.id}
                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                   >
                     <td className="p-4">
-                      <Link to={`/product/${product.product._id}`}>
+                      <Link to={`/product/${product.product.id}`}>
                         <img
-                          src={product.product.imageCover}
+                          src={product.productVariation.images[0].image}
                           className="w-16 md:w-32 max-w-full max-h-full rounded-lg"
                           alt="Apple Watch"
                         />
@@ -80,10 +82,10 @@ export default function Cart() {
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                       <Link
-                        to={`/product/${product.product._id}`}
+                        to={`/product/${product.product.id}`}
                         className="hover:underline"
                       >
-                        {product.product.title}
+                        {product.product.name}
                       </Link>
                     </td>
                     <td className="px-6 py-4">
@@ -91,8 +93,8 @@ export default function Cart() {
                         <button
                           onClick={() => {
                             handleUpdateProductQuantity(
-                              product.product._id,
-                              product.count - 1
+                              product.product.id,
+                              product.quantity - 1
                             );
                           }}
                           className="inline-flex items-center justify-center p-1 me-3 text-sm font-medium h-6 w-6 text-gray-500 bg-white border border-gray-300 rounded-full focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
@@ -121,15 +123,15 @@ export default function Cart() {
                             id="first_product"
                             disabled
                             className="bg-gray-50 w-14 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-2.5 py-1 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder={product.count}
+                            placeholder={product.quantity}
                             required
                           />
                         </div>
                         <button
                           onClick={() => {
                             handleUpdateProductQuantity(
-                              product.product._id,
-                              product.count + 1
+                              product.productVariation.id,
+                              product.quantity + 1
                             );
                           }}
                           className="inline-flex items-center justify-center h-6 w-6 p-1 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-full focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
@@ -155,11 +157,11 @@ export default function Cart() {
                       </div>
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                      EGP {product.price * product.count}
+                      Rs {product.productVariation.price * product.quantity}
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => handleDeleteProduct(product.product._id)}
+                        onClick={() => handleDeleteProduct(product.productVariation.id)}
                         className="font-medium text-red-600 dark:text-red-500 hover:underline"
                       >
                         Remove
@@ -188,11 +190,11 @@ export default function Cart() {
               Total Price
             </h5>
             <span className="text-3xl font-bold text-gray-900 dark:text-white">
-              EGP {data?.totalCartPrice || 0}
+              Rs {totalCartPrice || 0}
             </span>
           </div>
           <Link
-            to={`/checkout/${data?._id}`}
+            to={`/checkout/${data?.id}`}
             className="text-lg text-white w-full block bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
           >
             Place Order

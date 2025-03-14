@@ -1,16 +1,20 @@
 import logo from '../../assets/freshcart-logo.svg';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { authContext } from '../../context/Auth/Auth';
 import { initFlowbite } from 'flowbite';
 import { productsContext } from '../../context/Products/Products';
 import Search from '../../pages/Search/Search';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBox } from '@fortawesome/free-solid-svg-icons';
+
 
 export default function Navbar() {
   const { userToken, setUserToken } = useContext(authContext);
   const location = useLocation();
 
   const { data, setSearchRes, searchRes } = useContext(productsContext);
+  const [aria,setAria]=useState(false);
 
   function logout() {
     setUserToken(null);
@@ -42,7 +46,7 @@ export default function Navbar() {
   };
 
   return (
-    <>
+    
       <nav className="bg-white border-gray-200 shadow-md dark:bg-gray-900 fixed top-0 w-full z-50">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
           <Link
@@ -113,8 +117,8 @@ export default function Navbar() {
               data-collapse-toggle="navbar-search"
               type="button"
               className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-              aria-controls="navbar-search"
-              aria-expanded="false"
+              onBlur={()=>{setAria(false)}}
+              
             >
               <span className="sr-only">Open main menu</span>
               <svg
@@ -159,7 +163,6 @@ export default function Navbar() {
                 </div>
                 <input
                   type="text"
-                  onKeyUp={(e) => handleSearch(e)}
                   id="search-navbar"
                   className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
                   placeholder="Search..."
@@ -205,21 +208,10 @@ export default function Navbar() {
                     </Link>
                   </li>
                   <li>
-                    <Link to="brands" className={getLinkClass('/brands')}>
+                    <Link to="orders" className={getLinkClass('/orders')}>
                       <div className="flex lg:flex-col lg:justify-center items-center space-x-1">
-                        <i className="fa-solid fa-tags" />
-                        <span>Brands</span>
-                      </div>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="categories"
-                      className={getLinkClass('/categories')}
-                    >
-                      <div className="flex lg:flex-col lg:justify-center items-center space-x-1">
-                        <i className="fa-solid fa-list" />
-                        <span>Categories</span>
+                        <FontAwesomeIcon icon={faBox} />
+                        <span>Orders</span>
                       </div>
                     </Link>
                   </li>
@@ -260,6 +252,6 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
-    </>
+    
   );
 }

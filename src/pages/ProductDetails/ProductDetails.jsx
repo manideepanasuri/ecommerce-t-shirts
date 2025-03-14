@@ -6,12 +6,14 @@ import { Helmet } from 'react-helmet';
 import { cartContext } from '../../context/Cart/Cart.jsx';
 import { productsContext } from '../../context/Products/Products.jsx';
 import { wishlistContext } from '../../context/Wishlist/Wishlist.jsx';
+import { data } from 'autoprefixer';
+import Reviews from './Reviews.jsx';
 
 export default function ProductDetails() {
   const { addProduct } = useContext(cartContext);
   const { renderStars } = useContext(productsContext);
-  const [ProdDetails, setProdDetails] = useState([]);
-
+  const [ProdDetails, setProdDetails] = useState(null);
+  const [reviews,setReviews]=useState(null);
   const settings = {
     dots: true,
     infinite: true,
@@ -29,19 +31,27 @@ export default function ProductDetails() {
 
   useEffect(() => {
     axios
-      .get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
+      .get(`${import.meta.env.VITE_BACKEND_HOST}/store/productvariations/?product_id=${id}`)
       .then((response) => {
-        setProdDetails(response.data.data);
+        setProdDetails(response.data.data[0]);
       })
       .catch((error) => {
         throw error;
       });
+    axios.get(
+      `${import.meta.env.VITE_BACKEND_HOST}/store/reviews/?product_id=${id}`
+    ).then((res)=>{
+      setReviews(res.data.data)
+    }).catch(err=>{
+      throw err;      
+    })
   }, []);
 
   return (
+    ProdDetails&&
     <>
       <Helmet>
-        <title>{ProdDetails.title}</title>
+        <title>hi</title>
       </Helmet>
 
       <div className="container dark:bg-gray-800">
@@ -51,10 +61,10 @@ export default function ProductDetails() {
               <Slider {...settings}>
                 {ProdDetails.images
                   ? ProdDetails.images.map((img, index) => (
-                      <div key={index} className="w-full h-[460px]">
+                      <div key={img.id} className="w-full h-[460px]">
                         <img
                           className="w-full h-full object-contain rounded-lg"
-                          src={img}
+                          src={img.image}
                           alt={`Product image ${index + 1}`}
                         />
                       </div>
@@ -70,7 +80,7 @@ export default function ProductDetails() {
                 Add to cart
               </button>
               <button className="w-1/2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 px-4 rounded-lg font-bold hover:bg-gray-300 dark:hover:bg-gray-600"
-                onClick={() => addToWishlist(ProdDetails.id)}
+                onClick={() => addToWishlist(ProdDetails.product)}
               >
                 Add to Wishlist
               </button>
@@ -79,13 +89,13 @@ export default function ProductDetails() {
 
           <div className="w-full md:w-2/3">
             <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-10">
-              {ProdDetails.title}
+              {ProdDetails.name}
             </h2>
 
             <span className="text-xl font-bold text-gray-700 dark:text-gray-300">
               Product Description:
             </span>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-5">
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-5 whitespace-pre-wrap">
               {ProdDetails.description}
             </p>
 
@@ -114,8 +124,14 @@ export default function ProductDetails() {
                 <div className="text-2xl font-bold text-gray-700 dark:text-gray-300">
                   Price
                 </div>
-                <div className="text-xl font-bold">EGP {ProdDetails.price}</div>
+                <div className="text-xl font-bold">Rs {ProdDetails.price}</div>
               </div>
+            </div>
+            <hr className='mb-4'/>
+            <div>
+              <h2 className='text-2xl mb-4 text-gray-700 font-semibold'>Reviews</h2>
+              {reviews&&reviews.map((dat)=>{return <Reviews key={dat.id} data={dat}/>})}
+              
             </div>
           </div>
         </div>

@@ -9,13 +9,13 @@ export default function WishlistContextProvider(props) {
   const { userToken } = useContext(authContext);
 
   const headers = {
-    token: userToken,
+    Authorization: `Bearer ${userToken}`,
   };
-  const URL = 'https://ecommerce.routemisr.com/api/v1/wishlist';
+  const URL = `${import.meta.env.VITE_BACKEND_HOST}/store/wishlist/`;
 
   function addToWishlist(id) {
     const data = {
-      productId: id,
+      product_id: id,
     };
 
     const config = {
@@ -28,12 +28,12 @@ export default function WishlistContextProvider(props) {
       axios(config)
         .then((response) => response.data)
         .catch((error) => {
-          throw error;
+          throw error.response?.data?.message || error.message || 'Error adding product';
         }),
       {
         loading: 'Adding product to wishlist...',
         success: 'Product added successfully!',
-        error: 'Error adding product',
+        error: (errMsg) => `${errMsg}`,
       }
     );
   }
@@ -41,7 +41,7 @@ export default function WishlistContextProvider(props) {
   function deleteWishlistItem(id) {
     const config = {
       method: 'delete',
-      url: `${URL}/${id}`,
+      url: `${URL}?id=${id}`,
       headers: headers,
     };
 
@@ -49,12 +49,12 @@ export default function WishlistContextProvider(props) {
       axios(config)
         .then((response) => response.data)
         .catch((error) => {
-          throw error;
+          throw error.response?.data?.message || error.message || 'Error removing product';;
         }),
       {
         loading: 'Removing product from wishlist...',
         success: 'Product removed successfully!',
-        error: 'Error removing product',
+        error: (errMsg) => `Error: ${errMsg}`,
       }
     );
   }
@@ -67,7 +67,8 @@ export default function WishlistContextProvider(props) {
     };
 
     return axios(config)
-      .then((response) => response.data.data)
+      .then((response) => {
+       return response.data.data})
       .catch((error) => {
         throw error;
       });

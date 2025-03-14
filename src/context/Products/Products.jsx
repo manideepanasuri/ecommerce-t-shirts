@@ -36,8 +36,9 @@ export default function ProductsContextProvider(props) {
 
   function getProducts() {
     return axios
-      .get('https://ecommerce.routemisr.com/api/v1/products')
-      .then((res) => res);
+      .get(`${import.meta.env.VITE_BACKEND_HOST}/store/allproducts/`)
+      .then((res) => {
+        return res});
   }
 
   async function main() {

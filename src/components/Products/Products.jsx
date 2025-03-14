@@ -23,7 +23,8 @@ export default function Products() {
 
   async function main() {
     const wishlistItems = await getWishlist();
-    const ids = wishlistItems.map((item) => item._id);
+    const ids = wishlistItems.map((item) => item.product);
+   
     setWishlistIds(ids);
   }
 
@@ -32,15 +33,13 @@ export default function Products() {
   }, []);
 
   return (
-    <>
       <div className="container flex flex-wrap items-center">
-        <h3 className="text-3xl font-medium mb-5 w-full">Our Products</h3>
         {data ? (
           data.map((product) => (
             <ProductItem
               product={product}
-              isWished={wishlistIds?.indexOf(product._id) !== -1 ? true : false}
-              key={product._id}
+              isWished={wishlistIds?.indexOf(product.id) !== -1 }
+              key={product.id}
               handleWishlist={handleWishlist}
             />
           ))
@@ -50,6 +49,5 @@ export default function Products() {
           </div>
         )}
       </div>
-    </>
   );
 }

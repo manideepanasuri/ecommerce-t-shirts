@@ -9,9 +9,9 @@ export default function CartContextProvider(props) {
   const { userToken } = useContext(authContext);
 
   const headers = {
-    token: userToken,
+    Authorization: `Bearer ${userToken}`,
   };
-  const URL = 'https://ecommerce.routemisr.com/api/v1/cart';
+  const URL = `${import.meta.env.VITE_BACKEND_HOST}/orders/cart/`;
 
   function getProducts() {
     const config = {
@@ -21,14 +21,15 @@ export default function CartContextProvider(props) {
     };
 
     return axios(config)
-      .then((response) => response.data.data)
+      .then((response) =>{
+        return response.data})
       .catch((error) => {
         throw error;
       });
   }
 
   function addProduct(id) {
-    const data = { productId: id };
+    const data = { product_variation_id: id };
 
     const config = {
       method: 'post',
@@ -41,12 +42,12 @@ export default function CartContextProvider(props) {
       axios(config)
         .then((response) => response.data)
         .catch((error) => {
-          throw error;
+          throw error.response?.data?.message || error.message || 'Error adding product';
         }),
       {
         loading: 'Adding product...',
         success: 'Product added successfully!',
-        error: 'Error adding product',
+        error: (errMsg) => `${errMsg}`,
       }
     );
   }
@@ -54,30 +55,33 @@ export default function CartContextProvider(props) {
   function deleteProduct(id) {
     let config = {
       method: 'delete',
-      url: `${URL}/${id}`,
+      url: `${URL}`,
       headers: headers,
+      data:{
+        product_variation_id:id
+      }
     };
 
     return toast.promise(
       axios(config)
         .then((response) => response.data)
         .catch((error) => {
-          throw error;
+          throw error.response?.data?.message || error.message || 'Error deleting product';
         }),
       {
         loading: 'Deleting product...',
         success: 'Product deleted successfully!',
-        error: 'Error deleting product',
+        error: (errMsg) => `${errMsg}`,
       }
     );
   }
 
   function updateProductQuantity(id, quantity) {
-    let data = { count: quantity };
+    let data = { quantity: quantity,product_variation_id:id };
 
     let config = {
       method: 'put',
-      url: `${URL}/${id}`,
+      url: `${URL}`,
       headers: headers,
       data: data,
     };
@@ -86,12 +90,12 @@ export default function CartContextProvider(props) {
       axios(config)
         .then((response) => response.data)
         .catch((error) => {
-          throw error;
+          throw error.response?.data?.message || error.message || 'Error updating';
         }),
       {
         loading: 'Updating product quantity...',
         success: 'Product quantity updated successfully!',
-        error: 'Error updating product quantity',
+        error: (errMsg) => `${errMsg}`,
       }
     );
   }
